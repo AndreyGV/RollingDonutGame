@@ -8,11 +8,10 @@ public class Player : MonoBehaviour
     public float attractionForce;
     public float repulsionForce;
 
+    private float smoothTime = 3;
     private Rigidbody playerRb;
     private GameObject cupOfCoffe;
 
-    
-    // Start is called before the first frame update
     void Start()
     {
         playerRb = GetComponent<Rigidbody>();
@@ -20,26 +19,26 @@ public class Player : MonoBehaviour
         
     }
 
-    // Update is called once per frame
     void Update()
     {
+        transform.RotateAround(cupOfCoffe.transform.position, Vector3.down, speed * Time.deltaTime); 
+        transform.Translate(Attraction() * attractionForce * Time.deltaTime,Space.World);
+    }
 
-        //Vector from the player to the object
-        Vector3 attractionDirection = (cupOfCoffe.transform.position - playerRb.transform.position).normalized;
+    private void LateUpdate()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            transform.Translate(-Attraction() * repulsionForce);
 
-        // Rotation player around the object
-        transform.RotateAround(cupOfCoffe.transform.position, Vector3.down, speed * Time.deltaTime);
-        
-        //Attraction to the center with the AddForce (doesnt work good)
-        //playerRb.AddForce(attractionDirection * attrectionForce);
-
-        // Attraction to the center by the transform.Translate
-        transform.Translate(attractionDirection * attractionForce * Time.deltaTime,Space.World);
-
-        if (Input.GetKeyUp(KeyCode.Space))
-        { 
-            //transform.Translate(-attractionDirection * repulsionForce * Time.deltaTime, Space.World);
-            playerRb.AddForce(-attractionDirection * repulsionForce * Time.deltaTime, ForceMode.Impulse);
         }
+    }
+
+    private Vector3 Attraction()
+    {
+        Vector3 playerPosition = playerRb.transform.position;
+        Vector3 cupPosition = cupOfCoffe.transform.position;
+        Vector3 attractionDirection = (cupPosition - playerPosition).normalized;
+        return attractionDirection;
     }
 }
